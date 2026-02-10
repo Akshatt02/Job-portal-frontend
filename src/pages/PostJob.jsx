@@ -2,11 +2,18 @@ import { useState, useContext } from "react";
 import API from "../api/axios";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
+import { payPlatformFee } from "../web3/wallet";
 
 export default function PostJob() {
   const nav = useNavigate();
   const { user } = useContext(AuthContext);
-  const [form, setForm] = useState({ title: "", description: "", location: "" });
+
+  const [form, setForm] = useState({
+    title: "",
+    description: "",
+    location: ""
+  });
+
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -33,17 +40,36 @@ export default function PostJob() {
       return;
     }
 
-    setLoading(true);
-
     try {
-      const txHash = "0xTEST_TRANSACTION_" + Date.now();
-      await API.post("/jobs", { ...form, payment_tx_hash: txHash });
-      nav("/jobs");
+      setLoading(true);
+
+      let txHash;
+      try {
+        txHash = await payPlatformFee();
+      } catch (paymentErr) {
+        setError(paymentErr.message || "Payment failed. Please try again.");
+        setLoading(false);
+        return;
+      }
+
+      if (!txHash) {
+        setError("Failed to get transaction hash. Please try again.");
+        setLoading(false);
+        return;
+      }
+
+      const response = await API.post("/jobs", {
+        ...form,
+        payment_tx_hash: txHash
+      });
+
+      if (response.status === 201 || response.status === 200) {
+        nav("/jobs");
+      }
     } catch (err) {
-      setError(
-        err.response?.data?.message ||
-        "Failed to post job. Please try again."
-      );
+      console.error("Error posting job:", err);
+      const errorMsg = err.response?.data?.error || err.message || "Failed to post job";
+      setError(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -55,7 +81,7 @@ export default function PostJob() {
         <div className="bg-white rounded-2xl shadow-lg p-8">
           <h2 className="text-3xl font-bold mb-2">Post a Job</h2>
           <p className="mb-6" style={{ color: "#6b5b3a" }}>
-            Fill in the details below to post a new job listing
+            A small blockchain payment is required before posting.
           </p>
 
           {error && <div className="error-box">{error}</div>}
@@ -66,7 +92,6 @@ export default function PostJob() {
             </label>
             <input
               className="input"
-              placeholder="e.g., Senior React Developer"
               value={form.title}
               onChange={e => setForm({ ...form, title: e.target.value })}
               disabled={loading}
@@ -78,9 +103,8 @@ export default function PostJob() {
               Description
             </label>
             <textarea
-              className="input"
               rows={6}
-              placeholder="Describe responsibilities, requirements, benefits..."
+              className="input"
               value={form.description}
               onChange={e => setForm({ ...form, description: e.target.value })}
               disabled={loading}
@@ -93,38 +117,18 @@ export default function PostJob() {
             </label>
             <input
               className="input"
-              placeholder="e.g., Remote or Bangalore"
               value={form.location}
               onChange={e => setForm({ ...form, location: e.target.value })}
               disabled={loading}
             />
           </div>
 
-          <div className="flex gap-3">
-            <button
-              onClick={postJob}
-              className="btn flex-1 py-3"
-              disabled={loading}
-            >
-              {loading ? "Posting Job..." : "💰 Pay & Post Job"}
-            </button>
-
-            <button
-              onClick={() => nav("/jobs")}
-              className="flex-1 py-3 rounded-lg font-semibold"
-              style={{
-                border: "2px solid #b45309",
-                color: "#b45309",
-                background: "transparent",
-              }}
-              disabled={loading}
-            >
-              Cancel
-            </button>
-          </div>
+          <button onClick={postJob} className="btn w-full py-3" disabled={loading}>
+            {loading ? "Waiting for blockchain confirmation..." : "💰 Pay & Post Job"}
+          </button>
 
           <p className="text-sm mt-6 text-center" style={{ color: "#8b7a55" }}>
-            This posting will be verified via blockchain payment and displayed to all users.
+            MetaMask will open to confirm the payment.
           </p>
         </div>
       </div>
