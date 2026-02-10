@@ -48,7 +48,7 @@ export default function Navbar() {
   return (
     <nav className="bg-white shadow-md p-4 flex justify-between items-center sticky top-0 z-40">
       <Link to="/" className="font-bold text-2xl" style={{ color: "#b45309" }}>
-        RizeJobs
+        Job Portal
       </Link>
 
       <div className="flex gap-6 items-center">

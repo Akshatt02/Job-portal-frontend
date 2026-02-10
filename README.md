@@ -1,4 +1,4 @@
-# RizeJobs - Frontend
+# Job Portal - Frontend
 
 A modern React + Vite application for AI-powered job matching with blockchain-secured payments.
 

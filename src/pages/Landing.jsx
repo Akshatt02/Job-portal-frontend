@@ -9,7 +9,7 @@ export default function Landing() {
     <div className="min-h-screen flex items-center justify-center px-4">
       <div className="text-center max-w-2xl">
         <h1 className="text-6xl font-bold mb-4" style={{ color: "#b45309" }}>
-          RizeJobs
+          Job Portal
         </h1>
         <h2 className="text-3xl font-semibold mb-4" style={{ color: "#d97706" }}>
           AI-Powered Job Matching
