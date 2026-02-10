@@ -20,10 +20,10 @@ export default function Landing() {
 
         <div className="bg-white rounded-lg shadow-lg p-8 mb-12">
           <p className="mb-6" style={{ color: "#6b5b3a" }}>
-            🤖 <strong>Smart Matching:</strong> Our AI analyzes your skills and preferences to find the best job opportunities tailored just for you.
+            <strong>Smart Matching:</strong> Our AI analyzes your skills and preferences to find the best job opportunities tailored just for you.
           </p>
           <p className="mb-8" style={{ color: "#6b5b3a" }}>
-            ⛓️ <strong>Secure Payments:</strong> All transactions are verified via blockchain technology, ensuring trust and transparency.
+            <strong>Secure Payments:</strong> All transactions are verified via blockchain technology, ensuring trust and transparency.
           </p>
 
           <div className="flex flex-col gap-4">
@@ -98,7 +98,7 @@ export default function Landing() {
 
         <div style={{ color: "#6b5b3a" }}>
           <p className="text-sm">
-            💼 Thousands of opportunities awaiting you | 🎯 AI-powered precision matching
+            Thousands of opportunities awaiting you | AI-powered precision matching
           </p>
         </div>
       </div>

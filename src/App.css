@@ -194,10 +194,56 @@ a {
   color: var(--primary-700);
   text-decoration: none;
   transition: color 0.18s ease;
+  cursor: pointer;
 }
 
 a:hover {
   color: var(--primary-600);
+}
+
+/* Ensure all buttons show pointer cursor */
+button, [role="button"], a.btn, input[type="button"], input[type="submit"] {
+  cursor: pointer;
+}
+
+button:disabled, [role="button"][aria-disabled="true"], a.btn:disabled, input[type="button"]:disabled, input[type="submit"]:disabled {
+  cursor: not-allowed;
+}
+
+/* Nav link styling */
+.nav-link {
+  font-weight: 500;
+  color: var(--text-color);
+  cursor: pointer;
+  transition: color 0.18s ease, transform 0.18s ease;
+}
+
+.nav-link:hover {
+  color: var(--primary-700);
+  transform: translateY(-1px);
+}
+
+/* =========================
+   Skills Badge Styling
+   ========================= */
+.skill-badge {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  background: linear-gradient(135deg, #fef3c7, #fce7f3);
+  color: #92400e;
+  border: 1px solid #fcd34d;
+  border-radius: 2rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.18s ease;
+  box-shadow: 0 2px 4px rgba(180, 83, 9, 0.08);
+}
+
+.skill-badge:hover {
+  background: linear-gradient(135deg, #fcd34d, #fbbf24);
+  border-color: #f59e0b;
+  box-shadow: 0 4px 8px rgba(180, 83, 9, 0.12);
+  transform: translateY(-1px);
   text-decoration: underline;
 }
 

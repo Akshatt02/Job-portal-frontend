@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import API from "../api/axios";
+import { AuthContext } from "../context/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
 
 export default function Signup() {
+  const { login } = useContext(AuthContext);
   const nav = useNavigate();
   const [form, setForm] = useState({ name: "", email: "", password: "" });
   const [error, setError] = useState("");
@@ -26,8 +28,9 @@ export default function Signup() {
         return;
       }
 
-      await API.post("/auth/register", form);
-      nav("/login");
+      const res = await API.post("/auth/register", form);
+      login(res.data.token);
+      nav("/jobs");
     } catch (err) {
       setError(
         err.response?.data?.message ||
@@ -42,7 +45,7 @@ export default function Signup() {
     <div className="flex justify-center items-center min-h-screen px-4">
       <form onSubmit={handleSignup} className="p-8 max-w-md w-full">
         <h2 className="text-3xl font-bold mb-6 text-center">
-          Create your account ✨
+          Create your account
         </h2>
 
         {error && <div className="error-box">{error}</div>}

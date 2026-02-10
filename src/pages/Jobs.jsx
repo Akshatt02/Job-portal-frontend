@@ -1,13 +1,17 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import API from "../api/axios";
 import JobCard from "../components/JobCard";
 import JobModal from "../components/JobModal";
+import { AuthContext } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 export default function Jobs() {
   const [jobs, setJobs] = useState([]);
   const [selected, setSelected] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const { user } = useContext(AuthContext);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchJobs();
@@ -74,7 +78,18 @@ export default function Jobs() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {jobs.map(job => (
-          <JobCard key={job.id} job={job} onClick={() => setSelected(job.id)} />
+          <JobCard
+            key={job.id}
+            job={job}
+            onClick={() => {
+              // protected: require login to view details
+              if (!user) {
+                navigate("/login");
+                return;
+              }
+              setSelected(job.id);
+            }}
+          />
         ))}
       </div>
 

@@ -2,9 +2,10 @@ import { Link, useNavigate } from "react-router-dom";
 import { useContext, useState } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { connectWallet } from "../web3/wallet";
+import API from "../api/axios";
 
 export default function Navbar() {
-  const { user, logout } = useContext(AuthContext);
+  const { user, logout, refreshUser } = useContext(AuthContext);
   const navigate = useNavigate();
   const [wallet, setWallet] = useState(null);
   const [connecting, setConnecting] = useState(false);
@@ -18,9 +19,27 @@ export default function Navbar() {
     try {
       setConnecting(true);
       const res = await connectWallet();
-      if (res) setWallet(res.address);
+      if (!res) return;
+
+      const addr = res.address;
+
+      // If user is logged in, save wallet address to backend and refresh profile
+      if (user) {
+        try {
+          await API.put("/profile", { wallet_address: addr });
+          await refreshUser();
+          setWallet(null);
+          return;
+        } catch (err) {
+          console.error("Failed to save wallet to profile:", err);
+          // fallthrough to set local wallet
+        }
+      }
+
+      // If not logged in, keep local connected address (won't be saved)
+      setWallet(addr);
     } catch (err) {
-      alert("Wallet connection failed");
+      alert(err.message || "Wallet connection failed");
     } finally {
       setConnecting(false);
     }
@@ -42,19 +61,25 @@ export default function Navbar() {
           </>
         )}
 
-        {wallet ? (
+        {(user && user.wallet_address) || wallet ? (
           <span
-            className="px-3 py-1 rounded-lg text-sm font-medium"
-            style={{ background: "#fff7ed", color: "#b45309" }}
+            className="px-3 py-1 rounded-lg text-sm font-medium flex items-center gap-2"
+            style={{ background: "#ecfdf5", color: "#065f46", cursor: "default" }}
           >
-            {wallet.slice(0,6)}...{wallet.slice(-4)}
+            Wallet Connected
           </span>
         ) : (
           <button
             onClick={handleConnectWallet}
             disabled={connecting}
-            className="px-4 py-2 rounded-lg font-medium"
-            style={{ border: "2px solid #b45309", color: "#b45309" }}
+            className="px-4 py-2 rounded-lg font-medium cursor-pointer"
+            style={{
+              border: "2px solid #b45309",
+              color: "#fff",
+              background: "linear-gradient(90deg,#f97316,#b45309)",
+              boxShadow: "0 2px 8px rgba(180,83,9,0.15)",
+              cursor: connecting ? "not-allowed" : "pointer",
+            }}
           >
             {connecting ? "Connecting..." : "Connect Wallet"}
           </button>
@@ -64,8 +89,8 @@ export default function Navbar() {
           <div className="flex gap-3">
             <Link
               to="/login"
-              className="px-4 py-2 rounded-lg font-medium"
-              style={{ border: "2px solid #b45309", color: "#b45309" }}
+              className="px-4 py-2 rounded-lg font-medium transition-all hover:shadow-md nav-link"
+              style={{ border: "2px solid #b45309", color: "#b45309", cursor: "pointer" }}
             >
               Login
             </Link>
@@ -80,8 +105,8 @@ export default function Navbar() {
 
             <button
               onClick={handleLogout}
-              className="px-4 py-2 rounded-lg text-white"
-              style={{ background: "#b91c1c" }}
+              className="px-4 py-2 rounded-lg text-white transition-all hover:shadow-md hover:scale-105"
+              style={{ background: "#b91c1c", cursor: "pointer" }}
             >
               Logout
             </button>

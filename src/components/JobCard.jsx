@@ -9,7 +9,7 @@ export default function JobCard({ job, onClick }) {
       </h3>
 
       <p className="mb-2 flex items-center" style={{ color: "#6b5b3a" }}>
-        <span className="text-lg mr-2">📍</span>
+        <span className="text-lg mr-2">•</span>
         {job.location}
       </p>
 

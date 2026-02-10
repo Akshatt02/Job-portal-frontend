@@ -72,10 +72,11 @@ export default function JobModal({ jobId, close }) {
 
         <button
           onClick={close}
-          className="text-2xl"
-          style={{ color: "#8b7a55" }}
+          className="text-2xl font-bold transition-all hover:scale-110"
+          style={{ color: "#8b7a55", cursor: "pointer", background: "none", border: "none" }}
+          aria-label="Close"
         >
-          ✕
+          ×
         </button>
       </div>
 
@@ -108,15 +109,16 @@ export default function JobModal({ jobId, close }) {
 
       {/* Actions */}
       <div className="flex gap-3">
-        <button className="btn flex-1">Apply Now</button>
+        <button className="btn flex-1 transition-all hover:shadow-lg">Apply Now</button>
 
         <button
           onClick={close}
-          className="flex-1 py-2 rounded-lg font-medium"
+          className="flex-1 py-2 rounded-lg font-medium transition-all hover:shadow-md"
           style={{
             border: "2px solid #b45309",
             color: "#b45309",
             background: "transparent",
+            cursor: "pointer",
           }}
         >
           Close

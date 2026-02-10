@@ -40,7 +40,7 @@ export default function Login() {
       <form onSubmit={handleLogin} className="p-8 max-w-md w-full">
         
         <h2 className="text-3xl font-bold mb-6 text-center">
-          Welcome back 👋
+          Welcome back
         </h2>
 
         {error && <div className="error-box">{error}</div>}

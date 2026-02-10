@@ -124,7 +124,7 @@ export default function PostJob() {
           </div>
 
           <button onClick={postJob} className="btn w-full py-3" disabled={loading}>
-            {loading ? "Waiting for blockchain confirmation..." : "💰 Pay & Post Job"}
+            {loading ? "Waiting for blockchain confirmation..." : "Pay & Post Job"}
           </button>
 
           <p className="text-sm mt-6 text-center" style={{ color: "#8b7a55" }}>

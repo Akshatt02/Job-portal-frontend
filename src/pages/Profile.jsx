@@ -98,10 +98,11 @@ export default function Profile() {
                     .getElementById("extractor")
                     .scrollIntoView({ behavior: "smooth" })
                 }
-                className="px-4 py-2 rounded-lg font-medium"
+                className="px-4 py-2 rounded-lg font-medium transition-all hover:shadow-md hover:scale-105"
                 style={{
                   background: "#fff7ed",
                   color: "#b45309",
+                  cursor: "pointer",
                 }}
               >
                 Add More Skills
@@ -110,15 +111,8 @@ export default function Profile() {
 
             <div className="flex flex-wrap gap-3">
               {user.skills.map((skill, idx) => (
-                <span
-                  key={idx}
-                  className="px-4 py-2 rounded-full text-sm font-semibold text-white shadow-md"
-                  style={{
-                    background:
-                      "linear-gradient(135deg,#f59e0b,#d97706)",
-                  }}
-                >
-                  ✓ {skill}
+                <span key={idx} className="skill-badge">
+                  {skill}
                 </span>
               ))}
             </div>
@@ -127,10 +121,7 @@ export default function Profile() {
 
         {/* AI Extractor */}
         <div id="extractor" className="bg-white rounded-2xl shadow-lg p-8">
-          <div className="flex items-center gap-3 mb-2">
-            <span className="text-3xl">🤖</span>
-            <h3 className="text-2xl font-bold">AI Skill Extractor</h3>
-          </div>
+          <h3 className="text-2xl font-bold mb-2">AI Skill Extractor</h3>
 
           <p className="mb-6" style={{ color: "#6b5b3a" }}>
             {hasSkills
@@ -159,13 +150,13 @@ export default function Profile() {
           <button
             onClick={extractSkills}
             disabled={loading}
-            className="btn w-full py-3 flex items-center justify-center gap-2"
+            className="btn w-full py-3 transition-all hover:shadow-lg active:scale-95"
           >
-            {loading ? "Extracting Skills..." : "✨ Extract Skills with AI"}
+            {loading ? "Extracting Skills..." : "Extract Skills with AI"}
           </button>
 
           <p className="text-sm mt-6 text-center" style={{ color: "#6b5b3a" }}>
-            💡 The more detailed your text, the better the extraction.
+            The more detailed your text, the better the extraction.
           </p>
         </div>
       </div>
