@@ -5,6 +5,15 @@ import JobModal from "../components/JobModal";
 import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
+/**
+ * Jobs Page - Browse and filter job listings
+ * 
+ * Features:
+ * - Display all available jobs
+ * - Filter by skill, location
+ * - Click job card to view details (requires login)
+ * - Job match scoring based on user skills
+ */
 export default function Jobs() {
   const [jobs, setJobs] = useState([]);
   const [selected, setSelected] = useState(null);
@@ -13,14 +22,24 @@ export default function Jobs() {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
 
+  // Filter state
+  const [skill, setSkill] = useState("");
+  const [location, setLocation] = useState("");
+  const [showFilters, setShowFilters] = useState(false);
+
   useEffect(() => {
     fetchJobs();
-  }, []);
+  }, [skill, location]);
 
   async function fetchJobs() {
     try {
       setLoading(true);
-      const res = await API.get("/jobs");
+      const params = new URLSearchParams();
+      if (skill) params.append("skill", skill);
+      if (location) params.append("location", location);
+
+      const url = `/jobs${params.toString() ? "?" + params.toString() : ""}`;
+      const res = await API.get(url);
       setJobs(res.data || []);
       setError("");
     } catch (err) {
@@ -30,6 +49,11 @@ export default function Jobs() {
       setLoading(false);
     }
   }
+
+  const handleClearFilters = () => {
+    setSkill("");
+    setLocation("");
+  };
 
   /* Loading */
   if (loading) {
@@ -74,7 +98,61 @@ export default function Jobs() {
 
   return (
     <div className="p-10">
-      <h2 className="text-3xl font-bold mb-8">Available Jobs</h2>
+      <div className="flex justify-between items-center mb-8">
+        <h2 className="text-3xl font-bold">Available Jobs</h2>
+        <button 
+          onClick={() => setShowFilters(!showFilters)}
+          className="btn-secondary"
+          style={{ padding: "0.5rem 1rem", cursor: "pointer" }}
+        >
+          {showFilters ? "Hide Filters" : "Show Filters"}
+        </button>
+      </div>
+
+      {/* Filter Section */}
+      {showFilters && (
+        <div style={{
+          background: "#fffaf0",
+          border: "1px solid #fcd34d",
+          borderRadius: "0.75rem",
+          padding: "1.5rem",
+          marginBottom: "2rem"
+        }}>
+          <h3 style={{ marginTop: 0, marginBottom: "1rem", color: "#92400e" }}>
+            Filter Jobs
+          </h3>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginBottom: "1rem" }}>
+            <input
+              type="text"
+              placeholder="Filter by skill (e.g., go, react)"
+              value={skill}
+              onChange={(e) => setSkill(e.target.value)}
+              className="input"
+              style={{ width: "100%" }}
+            />
+            <input
+              type="text"
+              placeholder="Filter by location (e.g., remote, NYC)"
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              className="input"
+              style={{ width: "100%" }}
+            />
+          </div>
+          <div style={{ display: "flex", gap: "0.75rem" }}>
+            <button 
+              onClick={handleClearFilters}
+              className="btn-secondary"
+              style={{ padding: "0.5rem 1rem", cursor: "pointer" }}
+            >
+              Clear Filters
+            </button>
+            <span style={{ color: "#6b7280", fontSize: "0.9rem", alignSelf: "center" }}>
+              {jobs.length} job{jobs.length !== 1 ? "s" : ""} found
+            </span>
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {jobs.map(job => (
@@ -99,3 +177,4 @@ export default function Jobs() {
     </div>
   );
 }
+

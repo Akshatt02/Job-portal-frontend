@@ -9,6 +9,7 @@ import Signup from "./pages/Signup";
 import Jobs from "./pages/Jobs";
 import Profile from "./pages/Profile";
 import PostJob from "./pages/PostJob";
+import Feed from "./pages/Feed";
 
 export default function App() {
 
@@ -18,6 +19,7 @@ export default function App() {
       <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/jobs" element={<Jobs />} />
+          <Route path="/feed" element={<Feed />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/profile" element={<Profile />} />

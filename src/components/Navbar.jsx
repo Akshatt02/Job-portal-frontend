@@ -53,6 +53,7 @@ export default function Navbar() {
 
       <div className="flex gap-6 items-center">
         <Link to="/jobs" className="nav-link">Jobs</Link>
+        <Link to="/feed" className="nav-link">Feed</Link>
 
         {user && (
           <>
