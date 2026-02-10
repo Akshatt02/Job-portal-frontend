@@ -15,7 +15,7 @@ import { AuthContext } from '../context/AuthContext';
 export default function Feed() {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
-  
+
   const [posts, setPosts] = useState([]);
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(true);
@@ -46,7 +46,7 @@ export default function Feed() {
   // Create a new post
   const handleCreatePost = async (e) => {
     e.preventDefault();
-    
+
     if (!content.trim()) {
       setError('Post content cannot be empty');
       return;
@@ -60,9 +60,9 @@ export default function Feed() {
     try {
       setPosting(true);
       setError('');
-      
+
       const res = await API.post('/posts', { content });
-      
+
       if (res.status === 201) {
         setSuccess('Post created successfully!');
         setContent('');
@@ -100,20 +100,28 @@ export default function Feed() {
               disabled={posting}
             />
             <div className="flex gap-3 mt-4">
-              <button 
-                type="submit" 
+              <button
+                type="submit"
                 className="btn disabled:opacity-50 disabled:cursor-not-allowed"
                 disabled={posting || !content.trim()}
               >
                 {posting ? 'Posting...' : 'Post'}
               </button>
               {content && (
-                <button 
-                  type="button" 
-                  className="btn-secondary disabled:opacity-50 disabled:cursor-not-allowed"
+                <button
+                  type="button"
                   onClick={() => setContent('')}
                   disabled={posting}
+                  className="flex items-center gap-2 px-4 py-2 rounded-md text-gray-500 hover:text-red-600 hover:bg-red-50 transition-all duration-200 disabled:opacity-50"
                 >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-4 w-4"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path fillRule="evenodd" d="M10 8.586l3.95-3.95a1 1 0 111.414 1.414L11.414 10l3.95 3.95a1 1 0 01-1.414 1.414L10 11.414l-3.95 3.95a1 1 0 01-1.414-1.414L8.586 10l-3.95-3.95A1 1 0 016.05 4.636L10 8.586z" clipRule="evenodd" />
+                  </svg>
                   Clear
                 </button>
               )}
@@ -123,7 +131,7 @@ export default function Feed() {
       ) : (
         <div className="bg-gradient-to-r from-amber-100 to-pink-100 rounded-lg p-8 mb-8 text-center border border-amber-300">
           <p className="text-amber-900 text-lg mb-4">Sign in to share your insights and connect with others</p>
-          <button 
+          <button
             className="btn"
             onClick={() => navigate('/login')}
           >
@@ -142,7 +150,7 @@ export default function Feed() {
           <h2 className="text-3xl font-bold text-gray-900 mb-6 pb-3 border-b-2 border-amber-500">
             Latest Posts ({posts.length})
           </h2>
-          
+
           {loading ? (
             <div className="text-center py-12 text-gray-500 text-lg">Loading posts...</div>
           ) : posts.length === 0 ? (
@@ -158,15 +166,12 @@ export default function Feed() {
                       <h3 className="text-lg font-semibold text-gray-900 m-0 mb-1">
                         {post.user_name || 'Anonymous'}
                       </h3>
-                      <p className="text-sm text-gray-600 m-0">
-                        {post.user_bio || 'No bio available'}
-                      </p>
                     </div>
                     <span className="text-sm text-gray-400 ml-4 whitespace-nowrap">
                       {new Date(post.created_at).toLocaleDateString()}
                     </span>
                   </div>
-                  
+
                   <div className="text-base text-gray-700 leading-relaxed">
                     <p className="m-0 whitespace-pre-wrap break-words">{post.content}</p>
                   </div>
