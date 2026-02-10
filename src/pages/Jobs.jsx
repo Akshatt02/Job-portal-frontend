@@ -5,41 +5,43 @@ import JobModal from "../components/JobModal";
 import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
-/**
- * Jobs Page - Browse and filter job listings
- * 
- * Features:
- * - Display all available jobs
- * - Filter by skill, location
- * - Click job card to view details (requires login)
- * - Job match scoring based on user skills
- */
 export default function Jobs() {
   const [jobs, setJobs] = useState([]);
   const [selected, setSelected] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [initialLoad, setInitialLoad] = useState(true);
   const [error, setError] = useState("");
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  // Filter state
-  const [skill, setSkill] = useState("");
   const [location, setLocation] = useState("");
+  const [debouncedLocation, setDebouncedLocation] = useState("");
   const [showFilters, setShowFilters] = useState(false);
 
   useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedLocation(location);
+    }, 200);
+
+    return () => clearTimeout(timer);
+  }, [location]);
+
+  useEffect(() => {
     fetchJobs();
-  }, [skill, location]);
+  }, [debouncedLocation]);
 
   async function fetchJobs() {
     try {
-      setLoading(true);
+      if (initialLoad) setLoading(true);
+
       const params = new URLSearchParams();
-      if (skill) params.append("skill", skill);
-      if (location) params.append("location", location);
+      if (debouncedLocation.trim()) {
+        params.append("location", debouncedLocation.trim());
+      }
 
       const url = `/jobs${params.toString() ? "?" + params.toString() : ""}`;
       const res = await API.get(url);
+
       setJobs(res.data || []);
       setError("");
     } catch (err) {
@@ -47,15 +49,14 @@ export default function Jobs() {
       console.error(err);
     } finally {
       setLoading(false);
+      setInitialLoad(false);
     }
   }
 
   const handleClearFilters = () => {
-    setSkill("");
     setLocation("");
   };
 
-  /* Loading */
   if (loading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center">
@@ -63,14 +64,11 @@ export default function Jobs() {
           className="w-10 h-10 border-4 border-r-transparent rounded-full animate-spin"
           style={{ borderColor: "#d97706", borderRightColor: "transparent" }}
         />
-        <p className="mt-4" style={{ color: "#6b5b3a" }}>
-          Loading jobs...
-        </p>
+        <p className="mt-4 text-[#6b5b3a]">Loading jobs...</p>
       </div>
     );
   }
 
-  /* Error */
   if (error) {
     return (
       <div className="p-10 max-w-4xl mx-auto">
@@ -82,94 +80,78 @@ export default function Jobs() {
     );
   }
 
-  /* Empty */
-  if (jobs.length === 0) {
-    return (
-      <div className="p-10 text-center min-h-screen flex flex-col justify-center">
-        <h2 className="text-2xl font-bold mb-4" style={{ color: "#6b5b3a" }}>
-          No jobs available
-        </h2>
-        <p style={{ color: "#8b7a55" }}>
-          Check back later for more opportunities
-        </p>
-      </div>
-    );
-  }
-
   return (
     <div className="p-10">
       <div className="flex justify-between items-center mb-8">
         <h2 className="text-3xl font-bold">Available Jobs</h2>
-        <button 
+
+        <button
           onClick={() => setShowFilters(!showFilters)}
-          className="btn-secondary"
-          style={{ padding: "0.5rem 1rem", cursor: "pointer" }}
+          className={`flex items-center gap-2 px-5 py-2.5 rounded-full font-medium transition-all duration-300 shadow-sm
+          ${showFilters
+            ? "bg-amber-500 text-white shadow-md scale-105"
+            : "bg-white text-amber-700 border border-amber-300 hover:bg-amber-50 hover:shadow-md"
+          }`}
         >
-          {showFilters ? "Hide Filters" : "Show Filters"}
+          <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4h18l-7 8v6l-4 2v-8L3 4z" />
+          </svg>
+          {showFilters ? "Filters On" : "Filter by Location"}
         </button>
       </div>
 
-      {/* Filter Section */}
       {showFilters && (
-        <div style={{
-          background: "#fffaf0",
-          border: "1px solid #fcd34d",
-          borderRadius: "0.75rem",
-          padding: "1.5rem",
-          marginBottom: "2rem"
-        }}>
-          <h3 style={{ marginTop: 0, marginBottom: "1rem", color: "#92400e" }}>
-            Filter Jobs
+        <div className="bg-amber-50 border border-amber-300 rounded-xl p-6 mb-8">
+          <h3 className="text-lg font-semibold text-amber-900 mb-4">
+            Filter by Location
           </h3>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginBottom: "1rem" }}>
+
+          <div className="flex gap-3 items-center">
             <input
               type="text"
-              placeholder="Filter by skill (e.g., go, react)"
-              value={skill}
-              onChange={(e) => setSkill(e.target.value)}
-              className="input"
-              style={{ width: "100%" }}
-            />
-            <input
-              type="text"
-              placeholder="Filter by location (e.g., remote, NYC)"
+              placeholder="Remote, Bangalore, Hyderabad..."
               value={location}
               onChange={(e) => setLocation(e.target.value)}
-              className="input"
-              style={{ width: "100%" }}
+              className="input w-full"
             />
-          </div>
-          <div style={{ display: "flex", gap: "0.75rem" }}>
-            <button 
-              onClick={handleClearFilters}
-              className="btn-secondary"
-              style={{ padding: "0.5rem 1rem", cursor: "pointer" }}
-            >
-              Clear Filters
-            </button>
-            <span style={{ color: "#6b7280", fontSize: "0.9rem", alignSelf: "center" }}>
-              {jobs.length} job{jobs.length !== 1 ? "s" : ""} found
+
+            {location && (
+              <button
+                onClick={handleClearFilters}
+                className="px-4 py-2 rounded-md text-gray-500 hover:text-red-600 hover:bg-red-50 transition"
+              >
+                Clear
+              </button>
+            )}
+
+            <span className="text-sm text-gray-500 whitespace-nowrap">
+              {jobs.length} job{jobs.length !== 1 ? "s" : ""}
             </span>
           </div>
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {jobs.map(job => (
-          <JobCard
-            key={job.id}
-            job={job}
-            onClick={() => {
-              // protected: require login to view details
-              if (!user) {
-                navigate("/login");
-                return;
-              }
-              setSelected(job.id);
-            }}
-          />
-        ))}
-      </div>
+      {jobs.length === 0 ? (
+        <div className="text-center py-20 text-gray-500">
+          No jobs match this location yet.
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {jobs.map(job => (
+            <JobCard
+              key={job.id}
+              job={job}
+              onClick={() => {
+                if (!user) {
+                  navigate("/login");
+                  return;
+                }
+                setSelected(job.id);
+              }}
+            />
+          ))}
+        </div>
+      )}
 
       {selected && (
         <JobModal jobId={selected} close={() => setSelected(null)} />
@@ -177,4 +159,3 @@ export default function Jobs() {
     </div>
   );
 }
-
